@@ -1,5 +1,3 @@
-Here's an improved version of the README.md file:
-
 # Terraform Modules for Creating DigitalOcean Droplets
 
 This repository contains Terraform modules for creating DigitalOcean Droplets. Follow these steps to get started:
