@@ -1,0 +1,7 @@
+image = "ubuntu-22-04-x64"
+droplet_name = "wordpress-staging"
+region = "sfo3"
+size = "s-1vcpu-1gb"
+create_volume = true
+volume_name = "wordpress-vol-staging"
+volume_size = 50

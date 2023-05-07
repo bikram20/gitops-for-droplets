@@ -1,0 +1,5 @@
+image = "ubuntu-22-04-x64"
+droplet_name = "wordpress-dev"
+region = "sfo3"
+size = "s-1vcpu-1gb"
+create_volume = false
