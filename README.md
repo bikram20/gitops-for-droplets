@@ -14,12 +14,12 @@ Before you begin, make sure you have the following:
 
 1. Clone the repository to your local machine.
 2. Review the `.env-sample` file, and create a copy named `.env` with your DigitalOcean API access details.
-3. Choose a directory to work in. The `dev`, `staging`, and `prod` directories are currently work-in-progress to build a CI/CD template.
 4. Modify the `terraform.tfvars` file to customize your Droplet configuration.
 5. Review the `main.tf`, `variables.tf`, and `provider.tf` files for your own reference.
 6. When you're ready to deploy, run the following commands in your chosen directory:
 
 ```
+source .env
 terraform init
 terraform plan
 terraform apply --auto-approve

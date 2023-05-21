@@ -2,22 +2,27 @@ data "digitalocean_ssh_key" "terraform" {
   name = var.ssh_key
 }
 
-module "droplet" {
-  source = "../modules/droplet"
+resource "digitalocean_volume" "volume" {
+  count = var.create_volume ? 1 : 0
 
-  image         = var.image
-  droplet_name  = var.droplet_name
-  region        = var.region
-  size          = var.size
-  create_volume = var.create_volume
-  volume_name   = var.volume_name
-  volume_size   = var.volume_size
-  ssh_key_id    = data.digitalocean_ssh_key.terraform.id
+  region      = var.region
+  name        = var.volume_name
+  size        = var.volume_size
+}
+
+resource "digitalocean_droplet" "droplet" {
+  image  = var.image
+  name   = var.droplet_name
+  region = var.region
+  size   = var.size
+  volume_ids = var.create_volume ? [digitalocean_volume.volume[0].id] : []
+
+  ssh_keys = [data.digitalocean_ssh_key.terraform.id]
 }
 
 resource "null_resource" "provisioner" {
   connection {
-    host        = module.droplet.ipv4_address
+    host        = digitalocean_droplet.droplet.ipv4_address
     user        = "root"
     type        = "ssh"
     private_key = file(var.ssh_pvt_key)
