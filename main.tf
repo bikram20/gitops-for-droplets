@@ -2,6 +2,10 @@ data "digitalocean_ssh_key" "terraform" {
   name = var.ssh_key
 }
 
+data "digitalocean_domain" "domain" {
+  name = var.domain_name
+}
+
 resource "digitalocean_volume" "volume" {
   count = var.create_volume ? 1 : 0
 
@@ -52,6 +56,66 @@ resource "null_resource" "provisioner" {
       "sudo mount -a" # Mount all filesystems mentioned in /etc/fstab
     ]
   }  
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo ufw disable",
+      "sudo systemctl disable ufw",
+    ]
+  }
 }
 
+resource "digitalocean_record" "root_domain_record" {
+  count   = data.digitalocean_domain.domain != null ? 1 : 0
+  domain  = var.domain_name
+  type    = "A"
+  name    = "@"
+  value   = digitalocean_droplet.droplet.ipv4_address
+  ttl     = 1800
+  priority = 0
 
+  depends_on = [digitalocean_droplet.droplet]
+}
+
+resource "digitalocean_record" "subdomain_records" {
+  count    = length(var.subdomain_names)
+  domain   = var.domain_name
+  type     = "A"
+  name     = var.subdomain_names[count.index]
+  value    = digitalocean_droplet.droplet.ipv4_address
+  ttl      = 1800
+  priority = 0
+
+  depends_on = [digitalocean_droplet.droplet]
+}
+
+resource "digitalocean_firewall" "firewall" {
+  name = var.firewall_name
+
+  depends_on = [digitalocean_droplet.droplet]
+  droplet_ids = [digitalocean_droplet.droplet.id]
+
+  inbound_rule {
+    protocol    = "tcp"
+    port_range  = "22"
+    source_addresses  = ["0.0.0.0/0"]
+  }
+
+  dynamic "inbound_rule" {
+    for_each = var.inbound_rules
+    content {
+      protocol          = inbound_rule.value.protocol
+      port_range        = inbound_rule.value.port_range
+      source_addresses  = inbound_rule.value.sources
+    }
+  }
+
+  dynamic "outbound_rule" {
+    for_each = var.outbound_rules
+    content {
+      protocol           = outbound_rule.value.protocol
+      port_range         = outbound_rule.value.port_range
+      destination_addresses = outbound_rule.value.destinations
+    }
+  }
+}
