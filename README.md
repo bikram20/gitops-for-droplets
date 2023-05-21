@@ -1,4 +1,4 @@
-# Terraform Modules for Creating DigitalOcean Droplets
+# Terraform and Docker Compose Modules for Setting up Wordpress on DigitalOcean Droplet
 
 This repository contains Terraform and Docker Compose manifests for setting up WordPress on a DigitalOcean Droplet. Follow these steps to get started:
 
