@@ -1,7 +1,42 @@
-image = "ubuntu-22-04-x64"
+image = "docker-20-04"
 droplet_name = "wordpress-staging"
 region = "sfo3"
-size = "s-1vcpu-1gb"
-create_volume = true
+size = "s-2vcpu-2gb"
+create_volume = false
 volume_name = "wordpress-vol-staging"
 volume_size = 50
+domain_name = "infradata.info"
+subdomain_names = ["test", "blog"]
+firewall_name = "wordpress-firewall"
+
+inbound_rules = [ 
+    {
+      protocol = "udp"
+      port_range = "443"
+      sources  = ["0.0.0.0/0"]
+    },
+    {
+      protocol = "tcp"
+      port_range = "443"
+      sources  = ["0.0.0.0/0"]
+    },
+    {
+      protocol = "tcp"
+      port_range = "80"
+      sources  = ["0.0.0.0/0"]
+    },
+]
+
+outbound_rules = [
+    {
+      protocol      = "tcp"
+      port_range    = "1-65535" 
+      destinations  = ["0.0.0.0/0"]
+    },
+    {
+      protocol      = "udp"
+      port_range    = "1-65535" 
+      destinations  = ["0.0.0.0/0"]
+    }
+]
+
