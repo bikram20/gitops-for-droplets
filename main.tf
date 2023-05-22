@@ -119,3 +119,38 @@ resource "digitalocean_firewall" "firewall" {
     }
   }
 }
+
+resource "null_resource" "docker" {
+  connection {
+    host        = digitalocean_droplet.droplet.ipv4_address
+    user        = var.user_name
+    type        = "ssh"
+    private_key = file(var.ssh_pvt_key)
+    timeout     = "2m"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.user_name}/wordpress-setup",
+      "sleep 5",  # Add a short delay for directory creation
+    ]
+  }
+
+  provisioner "file" {
+    source      = "./wordpress-setup"
+    destination = "/home/${var.user_name}/"
+  }
+  
+  # Before running docker compose, sleep for 5 min for domain information to propagate
+  provisioner "remote-exec" {
+    inline = [
+      "cd /home/${var.user_name}/wordpress-setup",
+      "sleep 300",
+      "sudo docker compose up -d"
+    ]
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+}

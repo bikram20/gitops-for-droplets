@@ -1,5 +1,9 @@
-buildstacks.dev, www.buildstacks.dev, blog.buildstacks.dev {
+infradata.info, blog.infradata.info, test.infradata.info {
    root * /var/www/html
    php_fastcgi wordpress:9000
    file_server
+   
+   #tls {
+   #   ca https://acme-staging-v02.api.letsencrypt.org/directory
+   #}
 }

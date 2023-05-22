@@ -1,4 +1,4 @@
-# Terraform and Docker Compose Modules for Setting up Wordpress on DigitalOcean Droplet
+# Setting up Wordpress on DigitalOcean using Terraform and Docker Compose  
 
 This repository contains Terraform and Docker Compose manifests for setting up WordPress on a DigitalOcean Droplet. Follow these steps to get started:
 
@@ -17,7 +17,10 @@ Before you begin, make sure you have the following:
 2. Review the `.env-sample` file and create a copy named `.env`, replacing the placeholders with your DigitalOcean API access details.
 3. Modify the `terraform.tfvars` file to customize your Droplet configuration.
 4. Review the `main.tf`, `variables.tf`, and `provider.tf` files for your reference.
-5. When you're ready to deploy, run the following commands in your chosen directory:
+5. Review the .env, Caddyfile, and docker-compose.yaml files in ./wordpress-setup directory. You will need to update .env with your desired credentials, and Caddyfile must be updated with the domains that are pointing to the droplet. Should you decide to run docker compose on your own, you can simply remove the specific remote-exec provisioner in main.tf file.
+
+Note that the Caddyfile TLS configuration uses staging ACME server from LetsEncrypt for testing purpose. When you deploy in production, remove that specific block from Caddyfile (reference: https://caddyserver.com/docs/automatic-https).
+6. When you're ready to deploy, run the following commands in your terraform directory:
 
    ```bash
    source .env
@@ -28,19 +31,7 @@ Before you begin, make sure you have the following:
 
    This will initialize Terraform, show you a preview of the changes to be made, and apply the changes to create your Droplet(s).
 
-   At this point, your Droplet will be created with the domain name pointing to it, and firewall rules applied.
-
-6. Now, you can SSH into the Droplet using the 'ubuntu' username or your specified username. After logging into the Droplet, clone this repository and navigate to the `wordpress-setup` directory.
-
-   Create a `.env` file with the necessary credentials.
-
-   Also, update the `Caddyfile` with your domain names.
-
-   Run the following command to set up WordPress:
-
-   ```bash
-   docker-compose up -d
-   ```
+   At this point, your Droplet will be created with the domain name pointing to it, and firewall rules applied. Wordpress is installed using docker compose (ref: the last resource in main.tf file).
 
    After the installation is complete, you should be able to access the WordPress site using `https://<your_domain>`. 
 
