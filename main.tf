@@ -141,6 +141,7 @@ resource "null_resource" "docker" {
     destination = "/home/${var.user_name}/"
   }
   
+  # Comment this part if you prefer to SSH into the machine and run docker compose yourself
   # Before running docker compose, sleep for 5 min for domain information to propagate
   provisioner "remote-exec" {
     inline = [
@@ -150,7 +151,8 @@ resource "null_resource" "docker" {
     ]
   }
 
-  triggers = {
-    always_run = timestamp()
-  }
+  # Uncomment this part to run docker compose provision everytime you do terraform apply
+  #triggers = {
+  #  always_run = timestamp()
+  #}
 }
