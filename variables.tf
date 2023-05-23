@@ -51,6 +51,12 @@ variable "subdomain_names" {
   default     = []
 }
 
+variable "dynamic_subdomain_setup" {
+  type = bool
+  default = false
+}
+
+
 variable "firewall_name" {
   description = "Name of the firewall"
 }
@@ -74,4 +80,3 @@ variable "outbound_rules" {
   }))
   default     = []
 }
-

@@ -1,8 +1,9 @@
-infradata.info, blog.infradata.info, test.infradata.info {
+test.doapps.dev wordp-fUW6yNUTjd-05-23.doapps.dev {
    root * /var/www/html
    php_fastcgi wordpress:9000
    file_server
    
+   # Comment this line to fetch certificates for production
    #tls {
    #   ca https://acme-staging-v02.api.letsencrypt.org/directory
    #}

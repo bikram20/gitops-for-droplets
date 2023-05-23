@@ -14,12 +14,17 @@ Before you begin, make sure you have the following:
 ## Getting Started
 
 1. Clone the repository to your local machine.
+
 2. Review the `.env-sample` file and create a copy named `.env`, replacing the placeholders with your DigitalOcean API access details.
+
 3. Modify the `terraform.tfvars` file to customize your Droplet configuration.
+
 4. Review the `main.tf`, `variables.tf`, and `provider.tf` files for your reference.
+
 5. Review the .env, Caddyfile, and docker-compose.yaml files in ./wordpress-setup directory. You will need to update .env with your desired credentials, and Caddyfile must be updated with the domains that are pointing to the droplet. Should you decide to run docker compose on your own, you can simply remove the specific remote-exec provisioner in main.tf file.
 
 Note that the Caddyfile TLS configuration uses staging ACME server from LetsEncrypt for testing purpose. When you deploy in production, remove that specific block from Caddyfile (reference: https://caddyserver.com/docs/automatic-https).
+
 6. When you're ready to deploy, run the following commands in your terraform directory:
 
    ```bash
@@ -33,7 +38,20 @@ Note that the Caddyfile TLS configuration uses staging ACME server from LetsEncr
 
    At this point, your Droplet will be created with the domain name pointing to it, and firewall rules applied. Wordpress is installed using docker compose (ref: the last resource in main.tf file).
 
-   After the installation is complete, you should be able to access the WordPress site using `https://<your_domain>`. 
+   After the installation is complete, you should be able to access the WordPress site using `https://<your_domain>`. If the domain does not resolve, then SSH into the droplet, and check the logs of Caddy container.
+
+   ```
+   ssh ubuntu@<droplet>
+   cd wordpress-setup
+   docker compose ps
+   docker compose logs caddy
+   ```
+
+   If you need to modify Caddy configuration, you can update the Caddyfile, and restart Caddy.
+
+   ```
+   docker compose restart caddy
+   ```
 
 7. To destroy your Droplet(s), run the following command:
 

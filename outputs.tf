@@ -10,3 +10,8 @@ output "domain_mapping" {
 output "firewall_id" {
   value = digitalocean_firewall.firewall.id
 }
+
+output "updated_subdomain_names" {
+  value = [for subdomain in local.updated_subdomain_names : subdomain == "@" ? var.domain_name : "${subdomain}.${var.domain_name}"]
+  description = "Subdomains available"
+}

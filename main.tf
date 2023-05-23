@@ -6,6 +6,7 @@ data "digitalocean_domain" "domain" {
   name = var.domain_name
 }
 
+
 resource "digitalocean_volume" "volume" {
   count = var.create_volume ? 1 : 0
 
@@ -65,23 +66,23 @@ resource "null_resource" "provisioner" {
   }
 }
 
-resource "digitalocean_record" "root_domain_record" {
-  count   = data.digitalocean_domain.domain != null ? 1 : 0
-  domain  = var.domain_name
-  type    = "A"
-  name    = "@"
-  value   = digitalocean_droplet.droplet.ipv4_address
-  ttl     = 1800
-  priority = 0
-
-  depends_on = [digitalocean_droplet.droplet]
+resource "random_string" "random_string" {
+  length  = 10
+  special = false
 }
 
+locals {
+  timestamp      = timestamp()
+  dynamic_subdomain = var.dynamic_subdomain_setup ? ["${substr(digitalocean_droplet.droplet.name, 0, 5)}-${substr(random_string.random_string.result, 0, 10)}-${formatdate("MM-DD", timestamp())}"] : []
+  updated_subdomain_names = concat(var.subdomain_names, local.dynamic_subdomain)
+}
+
+
 resource "digitalocean_record" "subdomain_records" {
-  count    = length(var.subdomain_names)
+  count    = var.domain_name != "" ? length(local.updated_subdomain_names) : 0
   domain   = var.domain_name
   type     = "A"
-  name     = var.subdomain_names[count.index]
+  name     = local.updated_subdomain_names[count.index]
   value    = digitalocean_droplet.droplet.ipv4_address
   ttl      = 1800
   priority = 0
@@ -120,6 +121,23 @@ resource "digitalocean_firewall" "firewall" {
   }
 }
 
+resource "null_resource" "caddyfile_provisioner" {
+  provisioner "local-exec" {
+    command = "./caddyfile-provisioner.sh"
+    working_dir = "."
+    
+    environment = {
+      FQDN_VALUES = join(":", local.updated_subdomain_names)
+      DOMAIN_NAME = var.domain_name
+    }
+  }
+  
+  # Uncomment this part to run provision everytime you do terraform apply
+  triggers = {
+   always_run = timestamp()
+  }
+}
+
 resource "null_resource" "docker" {
   connection {
     host        = digitalocean_droplet.droplet.ipv4_address
@@ -152,7 +170,7 @@ resource "null_resource" "docker" {
   }
 
   # Uncomment this part to run docker compose provision everytime you do terraform apply
-  #triggers = {
-  #  always_run = timestamp()
-  #}
+  triggers = {
+   always_run = timestamp()
+  }
 }
